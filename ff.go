@@ -51,6 +51,9 @@ func buildWalkFun(pattern string, color bool) filepath.WalkFunc {
 			if color {
 				out = highlight(r, path)
 			}
+			if info.IsDir() {
+				out += "/"
+			}
 			fmt.Printf("%s\n", out)
 		}
 		return nil

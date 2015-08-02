@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -37,7 +38,7 @@ func highlight(pattern *regexp.Regexp, needle string) string {
 //
 // If 'color' is true, the matching substrings are highlighted using
 // ANSI colors.
-func buildWalkFun(pattern string, color bool) filepath.WalkFunc {
+func buildWalkFun(pattern string, writer io.Writer, color bool) filepath.WalkFunc {
 	r := regexp.MustCompile(pattern)
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -54,7 +55,7 @@ func buildWalkFun(pattern string, color bool) filepath.WalkFunc {
 			if info.IsDir() {
 				out += "/"
 			}
-			fmt.Printf("%s\n", out)
+			fmt.Fprintf(writer, "%s\n", out)
 		}
 		return nil
 	}
@@ -75,7 +76,7 @@ func main() {
 		return
 	}
 
-	walkFun := buildWalkFun(flag.Arg(0), true)
+	walkFun := buildWalkFun(flag.Arg(0), os.Stdout, true)
 	err := filepath.Walk(".", walkFun)
 	if err != nil {
 		panic(err)

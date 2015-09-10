@@ -71,12 +71,17 @@ func init() {
 }
 
 func main() {
-	if flag.NArg() != 1 {
+	var needle string
+	if flag.NArg() == 0 {
+		needle = ""
+	} else if flag.NArg() == 1 {
+		needle = flag.Arg(0)
+	} else {
 		flag.Usage()
 		return
 	}
 
-	walkFun := buildWalkFun(flag.Arg(0), os.Stdout, true)
+	walkFun := buildWalkFun(needle, os.Stdout, true)
 	err := filepath.Walk(".", walkFun)
 	if err != nil {
 		panic(err)

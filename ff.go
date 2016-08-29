@@ -17,6 +17,7 @@ import (
 )
 
 var caseInsensitive bool
+var caseSensitive bool
 
 // Highlight colorifies all occurences of pattern inside of needle
 // and returns a string.
@@ -41,7 +42,7 @@ func highlight(pattern *regexp.Regexp, needle string) string {
 // If 'color' is true, the matching substrings are highlighted using
 // ANSI colors.
 func buildWalkFun(pattern string, writer io.Writer, color bool) filepath.WalkFunc {
-	if (caseInsensitive) {
+	if caseInsensitive {
 		pattern = "(?i)" + pattern
 	}
 
@@ -69,6 +70,7 @@ func buildWalkFun(pattern string, writer io.Writer, color bool) filepath.WalkFun
 
 func init() {
 	flag.BoolVar(&caseInsensitive, "i", false, "case insensitive")
+	flag.BoolVar(&caseSensitive, "c", false, "case sensitive")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s <regexp>\n", path.Base(os.Args[0]))
 		flag.PrintDefaults()
@@ -85,6 +87,11 @@ func main() {
 	} else {
 		flag.Usage()
 		return
+	}
+	if !caseSensitive {
+		if matched, _ := regexp.MatchString("^[a-z]+$", needle); matched {
+			caseInsensitive = true
+		}
 	}
 
 	walkFun := buildWalkFun(needle, os.Stdout, true)

@@ -18,6 +18,7 @@ import (
 
 var caseInsensitive bool
 var caseSensitive bool
+var dontDescend bool
 
 // Highlight colorifies all occurences of pattern inside of needle
 // and returns a string.
@@ -63,6 +64,9 @@ func buildWalkFun(pattern string, writer io.Writer, color bool) filepath.WalkFun
 				out += "/"
 			}
 			fmt.Fprintf(writer, "%s\n", out)
+			if info.IsDir() && dontDescend {
+				return filepath.SkipDir
+			}
 		}
 		return nil
 	}
@@ -71,6 +75,7 @@ func buildWalkFun(pattern string, writer io.Writer, color bool) filepath.WalkFun
 func init() {
 	flag.BoolVar(&caseInsensitive, "i", false, "case insensitive")
 	flag.BoolVar(&caseSensitive, "c", false, "case sensitive")
+	flag.BoolVar(&dontDescend, "d", false, "don't descend if dir matches")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s <regexp>\n", path.Base(os.Args[0]))
 		flag.PrintDefaults()
